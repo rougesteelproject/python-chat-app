@@ -1,69 +1,86 @@
 #Credit to "Python Socket Programming Tutorial" by 'Tech With Tim' on Youtube
+#Credit to "Simple TCP Chat Room in Python" by 'NeuralNine' on Youtube
 
 import socket
 import threading
 
 #I would tell everyone a UDP joke, but I'm not sure anyone would get it.
 
-HEADER = 2
-#The first message the server expects is a 2-byte header that says the length of the rest of the message.
-#Doing it this way runs the risk that the header is not as big as the message
-# 2 bytes is more than enough for any practical aplications
-PORT = 5050
 FORMAT = 'utf-8'
 
 DISCONNECT_MESSAGE = "!disconnect"
 #If users do not propperly disconnect by sending this message, the server may keep their connection ope, then they can't reconnect
 
-SERVER = socket.gethostbyname(socket.gethostname())
-
-
-
-ADDR = (SERVER, PORT)
+HOST = socket.gethostbyname(socket.gethostname())
+PORT = 5050
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #SOCK_STREAM is TCP
-server.bind(ADDR)
+server.bind(HOST, PORT)
+
+clients = []
+nicknames = []
 
 #TODO store a list of new messages, send to clients
 
-def handle_client(conn, addr):
-    #Handle individual connections, takes a connection, and an address
-    print(f"[NEW CONNECTION] {addr} connected.")
-    
-    connected = True
-    while connected:
-        #wait until something is recieved
-        msg_length = conn.recv(HEADER).decode(FORMAT)
-        if msg_length:
-            #The most-first-est message the server recieves is blank and is for establishing the connection
-            #if msg_length checks the message is not blank
-            msg_length = int(msg_length)
+def disconnect_client(client):
+    index=clients.index(client)
+    clients.remove(client)
+    client.close()
+    nickname = nicknames[index]
+    broadcast(f'[DISCONNECT] {nickname} has left the chat'.encode(FORMAT))
+    nicknames.remove(nickname)
 
-            #The first message the server expects is a 64-byte header that says the length of the rest of the message.
-            #Doing it this way runs the risk that the header is not as big as the message
 
-            msg = conn.recv(msg_length).decode(FORMAT)
+def handle_client(client):   
+    while True:
+        try:
+            message = client.recv(1024)
+            #1024 bytes
+            #TODO too many bytes?
+            if message == DISCONNECT_MESSAGE:
+                disconnect_client(client)
+                break
+                
+            broadcast(message)
+        except:
+            disconnect_client(client)
+            break
 
-            if msg == DISCONNECT_MESSAGE:
-                connected = False
-                print(f'[DISCONNECT] {addr} disconnected.')
+def recieve_client():
+    while True:
+        client, address = server.accept()
+        #threading opens up a new thread (process) for each client
+        print(f"[CONNECTION] connected with {str(address)}")
 
-            print(f'[{addr}] {msg}')
-            conn.send("Message Recieved".encode(FORMAT))
+        client.send("!NICK".encode(FORMAT))
+        nickname = client.recv(1024).decode(FORMAT)
+        nicknames.append(nickname)
 
-    conn.close()
+        clients.append(client)
+
+        print(f"[CONNECTION] nickname of client is {nickname}")
+
+        broadcast(f"{nickname} has joined the chat.".encode(FORMAT))
+
+        client.send("Connected to the server.".encode(FORMAT))
+
+        thread = threading.Thread(target=handle_client, args=(client,))
+        thread.start()
+        print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
 
 def start():
     #Listens for new connections
     server.listen()
-    print(f"[LISTENING] server is listening on {SERVER}")
-    while True:
-        conn, addr = server.accept()
-        #threading opens up a new thread (process) for each client
-        thread = threading.Thread(target=handle_client, args=(conn,addr))
-        thread.start()
-        print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
+    print(f"[LISTENING] server is listening on {HOST}")
+    recieve_client()
+
+def broadcast(message):
+    #TODO this only works on clients who are connected.
+    #Clients who are not connected will not see mesages they missed
+    for client in clients:
+        client.send(message)
+
 
 print("[STARTING] server is starting...")
 start()
