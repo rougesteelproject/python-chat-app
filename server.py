@@ -6,7 +6,7 @@ import threading
 
 #I would tell everyone a UDP joke, but I'm not sure anyone would get it.
 
-FORMAT = 'ascii'
+FORMAT = 'utf-8'
 
 DISCONNECT_MESSAGE = "!disconnect"
 #If users do not propperly disconnect by sending this message, the server may keep their connection ope, then they can't reconnect
