@@ -5,7 +5,8 @@ HEADER = 2
 #Doing it this way runs the risk that the header is not as big as the message
 # 2 bytes is more than enough for any practical aplications
 PORT = 5050
-FORMAT = 'utf-8'
+FORMAT = 'ascii'
+#TODO utf-8 would be better for supporting more, but currently borks the messages
 
 DISCONNECT_MESSAGE = "!disconnect"
 #If users do not propperly disconnect by sending this message, the server may keep their connection ope, then they can't reconnect
