@@ -31,18 +31,21 @@ def handle_client(conn, addr):
     while connected:
         #wait until something is recieved
         msg_length = conn.recv(HEADER).decode(FORMAT)
-        msg_length = int(msg_length)
+        if msg_length:
+            #The most-first-est message the server recieves is blank and is for establishing the connection
+            #if msg_length checks the message is not blank
+            msg_length = int(msg_length)
 
-        
-        #The first message the server expects is a 64-byte header that says the length of the rest of the message.
-        #Doing it this way runs the risk that the header is not as big as the message
+            #The first message the server expects is a 64-byte header that says the length of the rest of the message.
+            #Doing it this way runs the risk that the header is not as big as the message
 
-        msg = conn.recv(msg_length).decode(FORMAT)
+            msg = conn.recv(msg_length).decode(FORMAT)
 
-        if msg == DISCONNECT_MESSAGE:
-            connected = False
+            if msg == DISCONNECT_MESSAGE:
+                connected = False
+                print(f'[DISCONNECT] {addr} disconnected.')
 
-        print(f'[{addr}] {msg}')
+            print(f'[{addr}] {msg}')
 
     conn.close()
 
