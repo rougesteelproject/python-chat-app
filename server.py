@@ -16,7 +16,7 @@ PORT = 5050
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #SOCK_STREAM is TCP
-server.bind(HOST, PORT)
+server.bind((HOST, PORT))
 
 clients = []
 nicknames = []
