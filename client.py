@@ -1,8 +1,9 @@
 import socket
 
-HEADER = 64
-#The first message the server expects is a 64-byte header that says the length of the rest of the message.
+HEADER = 2
+#The first message the server expects is a 2-byte header that says the length of the rest of the message.
 #Doing it this way runs the risk that the header is not as big as the message
+# 2 bytes is more than enough for any practical aplications
 PORT = 5050
 FORMAT = 'utf-8'
 
@@ -14,6 +15,7 @@ SERVER = "172.28.210.193"
 ADDR = (SERVER, PORT)
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#SOCK_STREAM is TCP
 client.connect(ADDR)
 
 def send(msg):
@@ -32,6 +34,8 @@ def send(msg):
     client.send(send_length)
 
     client.send(message)
+
+    #TODO it'll be more efficient to send the length and the message at the same time
 
     print(client.recv(HEADER).decode(FORMAT))
 

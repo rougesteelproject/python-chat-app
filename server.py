@@ -5,9 +5,10 @@ import threading
 
 #I would tell everyone a UDP joke, but I'm not sure anyone would get it.
 
-HEADER = 64
-#The first message the server expects is a 64-byte header that says the length of the rest of the message.
+HEADER = 2
+#The first message the server expects is a 2-byte header that says the length of the rest of the message.
 #Doing it this way runs the risk that the header is not as big as the message
+# 2 bytes is more than enough for any practical aplications
 PORT = 5050
 FORMAT = 'utf-8'
 
@@ -21,6 +22,7 @@ SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#SOCK_STREAM is TCP
 server.bind(ADDR)
 
 #TODO store a list of new messages, send to clients
