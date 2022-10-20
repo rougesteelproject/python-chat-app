@@ -23,6 +23,8 @@ ADDR = (SERVER, PORT)
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
+#TODO store a list of new messages, send to clients
+
 def handle_client(conn, addr):
     #Handle individual connections, takes a connection, and an address
     print(f"[NEW CONNECTION] {addr} connected.")
@@ -46,6 +48,7 @@ def handle_client(conn, addr):
                 print(f'[DISCONNECT] {addr} disconnected.')
 
             print(f'[{addr}] {msg}')
+            conn.send("Message Recieved".encode(FORMAT))
 
     conn.close()
 

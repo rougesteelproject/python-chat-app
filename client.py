@@ -33,6 +33,8 @@ def send(msg):
 
     client.send(message)
 
+    print(client.recv(HEADER).decode(FORMAT))
+
 send("Hello World!")
 send("TEst 2")
 send("HELLLLLLLLLO")
