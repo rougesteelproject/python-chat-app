@@ -86,7 +86,7 @@ def recieve_client():
             thread = threading.Thread(target=handle_client, args=(client,))
             thread.start()
             print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
-        except ConnectionResetError:
+        except:
             traceback.print_exception()
 
 def start():

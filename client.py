@@ -51,7 +51,7 @@ class Client():
 
             except ConnectionAbortedError:
                 break
-            except Error:
+            except:
                 traceback.print_exception()
                 self.sock.close()
                 break
