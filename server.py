@@ -36,7 +36,7 @@ def disconnect_client(client):
 def handle_client(client):   
     while True:
         try:
-            message = client.recv(1024)
+            message = client.recv(1024).decode(FORMAT)
             #1024 bytes
             #TODO too many bytes?
             if message == DISCONNECT_MESSAGE:
@@ -49,7 +49,7 @@ def handle_client(client):
             index=clients.index(client)
             nickname = nicknames[index]
 
-            new_message = f'{nickname}: {message.decode(FORMAT)}'.encode(FORMAT)
+            new_message = f'{nickname}: {message}'.encode(FORMAT)
             #adds nicknames to messages so that we don't have to instead /remove/ nicknames from messages
                 
             broadcast(new_message)

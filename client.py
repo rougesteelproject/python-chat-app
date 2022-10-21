@@ -15,10 +15,6 @@ client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #SOCK_STREAM is TCP
 client.connect((SERVER, PORT))
 
-def set_nickname():
-    nickname = input("Choose a nickname: ")
-    return nickname
-
 def recieve():
     while True:
         try:
@@ -27,7 +23,7 @@ def recieve():
 
             if message == SET_NICKNAME_MESSAGE:
                 #GET AND SEND NICKNAME
-                client.send(set_nickname())
+                print("Choose a nickname: ")
         except:
             traceback.print_exception()
             client.close()
