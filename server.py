@@ -30,7 +30,9 @@ def disconnect_client(client):
     clients.remove(client)
     client.close()
     nickname = nicknames[index]
-    broadcast(f'[DISCONNECT] {nickname} has left the chat'.encode(FORMAT))
+    client_disconnected_message = f'[DISCONNECT] {nickname} has left the chat'
+    print(client_disconnected_message)
+    broadcast(client_disconnected_message.encode(FORMAT))
     nicknames.remove(nickname)
 
 
@@ -40,6 +42,14 @@ def handle_client(client):
             message = client.recv(1024).decode(FORMAT)
             #1024 bytes
             #TODO too many bytes?
+
+            index=clients.index(client)
+            nickname = nicknames[index]
+
+            new_message = f'{nickname}: {message}'.encode(FORMAT)
+            #adds nicknames to messages so that we don't have to instead /remove/ nicknames from messages
+            print(new_message)
+
             if message == DISCONNECT_MESSAGE:
                 disconnect_client(client)
                 break
@@ -47,12 +57,6 @@ def handle_client(client):
             if message == SET_NICKNAME_MESSAGE:
                 client.send(SET_NICKNAME_MESSAGE)
 
-            index=clients.index(client)
-            nickname = nicknames[index]
-
-            new_message = f'{nickname}: {message}'.encode(FORMAT)
-            #adds nicknames to messages so that we don't have to instead /remove/ nicknames from messages
-                
             broadcast(new_message)
         except:
             disconnect_client(client)
