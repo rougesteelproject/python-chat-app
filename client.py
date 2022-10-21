@@ -7,26 +7,25 @@ PORT = 5050
 
 FORMAT = 'utf-8'
 
-def set_nickname():
-    nickname = input("Choose a nickname: ")
-    return nickname
-
-nickname = set_nickname()
-
 DISCONNECT_MESSAGE = "!disconnect"
 #If users do not propperly disconnect by sending this message, the server may keep their connection ope, then they can't reconnect
+SET_NICKNAME_MESSAGE = "!nick"
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #SOCK_STREAM is TCP
 client.connect((SERVER, PORT))
 
+def set_nickname():
+    nickname = input("Choose a nickname: ")
+    return nickname
+
 def recieve():
     while True:
         try:
             message = client.recv(1024).decode(FORMAT)
-            if message == "!NICK":
-                nickname = set_nickname()
+            if message == SET_NICKNAME_MESSAGE:
                 #GET AND SEND NICKNAME
+                client.send(set_nickname())
             else:
                 print(message)
         except:
@@ -36,7 +35,7 @@ def recieve():
 
 def write():
     while True:
-        message = f"{nickname}: {input('')}"
+        message = f"{input('')}"
         client.send(message.encode(FORMAT))
 
 recieve_thread = threading.Thread(target=recieve)

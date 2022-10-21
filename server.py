@@ -10,6 +10,7 @@ FORMAT = 'utf-8'
 
 DISCONNECT_MESSAGE = "!disconnect"
 #If users do not propperly disconnect by sending this message, the server may keep their connection ope, then they can't reconnect
+SET_NICKNAME_MESSAGE = "!nick"
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 5050
@@ -41,8 +42,17 @@ def handle_client(client):
             if message == DISCONNECT_MESSAGE:
                 disconnect_client(client)
                 break
+
+            if message == SET_NICKNAME_MESSAGE:
+                client.send(SET_NICKNAME_MESSAGE)
+
+            index=clients.index(client)
+            nickname = nicknames[index]
+
+            new_message = f'{nickname}: {message.decode(FORMAT)}'.encode(FORMAT)
+            #adds nicknames to messages so that we don't have to instead /remove/ nicknames from messages
                 
-            broadcast(message)
+            broadcast(new_message)
         except:
             disconnect_client(client)
             break
@@ -53,7 +63,7 @@ def recieve_client():
         #threading opens up a new thread (process) for each client
         print(f"[CONNECTION] connected with {str(address)}")
 
-        client.send("!NICK".encode(FORMAT))
+        client.send(SET_NICKNAME_MESSAGE.encode(FORMAT))
         nickname = client.recv(1024).decode(FORMAT)
         nicknames.append(nickname)
 
