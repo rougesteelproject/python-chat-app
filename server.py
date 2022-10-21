@@ -46,7 +46,7 @@ def handle_client(client):
             index=clients.index(client)
             nickname = nicknames[index]
 
-            new_message = f'{nickname}: {message}'.encode(FORMAT)
+            new_message = f'{nickname}: {message}\n'.encode(FORMAT)
             #adds nicknames to messages so that we don't have to instead /remove/ nicknames from messages
             print(new_message)
 
