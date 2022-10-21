@@ -23,11 +23,11 @@ def recieve():
     while True:
         try:
             message = client.recv(1024).decode(FORMAT)
+            print(message)
+
             if message == SET_NICKNAME_MESSAGE:
                 #GET AND SEND NICKNAME
                 client.send(set_nickname())
-            else:
-                print(message)
         except:
             traceback.print_exception()
             client.close()
