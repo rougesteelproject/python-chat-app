@@ -3,6 +3,7 @@
 
 import socket
 import threading
+import traceback
 
 #I would tell everyone a UDP joke, but I'm not sure anyone would get it.
 
@@ -63,21 +64,26 @@ def recieve_client():
         #threading opens up a new thread (process) for each client
         print(f"[CONNECTION] connected with {str(address)}")
 
-        client.send(SET_NICKNAME_MESSAGE.encode(FORMAT))
-        nickname = client.recv(1024).decode(FORMAT)
-        nicknames.append(nickname)
+        try:
+            client.send(SET_NICKNAME_MESSAGE.encode(FORMAT))
+        
+            nickname = client.recv(1024).decode(FORMAT)
+        
+            nicknames.append(nickname)
 
-        clients.append(client)
+            clients.append(client)
 
-        print(f"[CONNECTION] nickname of client is {nickname}")
+            print(f"[CONNECTION] nickname of client is {nickname}")
 
-        broadcast(f"{nickname} has joined the chat.".encode(FORMAT))
+            broadcast(f"{nickname} has joined the chat.".encode(FORMAT))
 
-        client.send("Connected to the server.".encode(FORMAT))
+            client.send("Connected to the server.".encode(FORMAT))
 
-        thread = threading.Thread(target=handle_client, args=(client,))
-        thread.start()
-        print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
+            thread = threading.Thread(target=handle_client, args=(client,))
+            thread.start()
+            print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
+        except ConnectionResetError:
+            traceback.print_exception()
 
 def start():
     #Listens for new connections
