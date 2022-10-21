@@ -24,8 +24,7 @@ def recieve():
             if message == SET_NICKNAME_MESSAGE:
                 #GET AND SEND NICKNAME
                 print("Choose a nickname: ")
-        except:
-            traceback.print_exception()
+        except ConnectionAbortedError:
             client.close()
             break
 
@@ -33,6 +32,10 @@ def write():
     while True:
         message = f"{input('')}"
         client.send(message.encode(FORMAT))
+
+        if message == DISCONNECT_MESSAGE:
+            client.close()
+            break
 
 recieve_thread = threading.Thread(target=recieve)
 recieve_thread.start()
