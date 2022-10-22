@@ -1,7 +1,7 @@
 import socket
 import threading
 
-import tkinter as tk
+import tkinter
 from tkinter import simpledialog
 import traceback
 
@@ -20,19 +20,46 @@ class Client():
         #SOCK_STREAM is TCP
         self.sock.connect((server, port))
 
-        msg = tk.Tk()
+        msg = tkinter.Tk()
         msg.withdraw()
 
         self.nickname = simpledialog.askstring("Nickname", "Please choose a nickname", parent=msg)
 
-        self._gui_done = False
+        self.gui_done = False
         self._running = True
 
         gui_thread = threading.Thread(target=self.gui_loop)
-        gui_thread.start
-
         recieve_thread = threading.Thread(target=self.recieve)
+
+        gui_thread.start
         recieve_thread.start()
+
+    def gui_loop(self):
+        self.window = tkinter.Tk()
+        self.window.configure(bg="lightgray")
+
+        self._chat_label = tkinter.Label(self.window, text="Chat", bg="lightgray")
+        self._chat_label.pack()
+
+        self._text_area = tkinter.scrolledtext.ScrolledText(self.window)
+        self._text_area.pack()
+        self._text_area.confing(state='disabled')
+        #Need to set the state to 'default' when making changes.
+
+        self._message_label = tkinter.Label(self.window, text="Message:", bg="lightgray")
+        self._message_label.pack()
+
+        self._input_area = tkinter.Text(self.window, height=3)
+        self._input_area.pack()
+
+        self._send_button = tkinter.Button(self.window, text="send", command=self.write)
+        self._send_button.pack()
+
+        self.gui_done = True
+
+        self.window.protocol("WM_DELETE_WINDOW", self.stop)
+
+        self.window.mainloop()
 
     def recieve(self):
         while self._running:
@@ -45,9 +72,7 @@ class Client():
                 if message == self.SET_NICKNAME_MESSAGE:
                     #GET AND SEND NICKNAME
                     self.sock.send(self.nickname.encode(self.FORMAT))
-                elif self._gui_done:
-
-
+                elif self.gui_done:
                     self._text_area.config(state='normal')
                     #Allow changing the text
                     self._text_area.insert('end', message)
@@ -67,35 +92,10 @@ class Client():
 
         message = self._input_area.get()
         self.sock.send(message.encode(self.FORMAT))
-        self._input_area.delete()
+        self._input_area.delete("1.0", "end")
 
         if message == self.DISCONNECT_MESSAGE:
             self.stop()
-
-    def gui_loop(self):
-        self.window = tk.Tk()
-        self.window.configure(bg="lightgray")
-
-        self._chat_label = tk.Label(self.window, text="Chat", bg="lightgray")
-        self._chat_label.pack()
-
-        self._text_area = tk.scrolledtext.ScrolledText(self.window)
-        self._text_area.pack()
-        self._text_area.confing(state='disabled')
-        #Need to set the state to 'default' when making changes.
-
-        self._message_label = tk.Label(self.window, text="message", bg="lightgray")
-        self._message_label.pack()
-
-        self._input_area = tk.Text(self.window, height=3)
-        self._input_area.pack()
-
-        self._send_button = tk.Button(self.window, text="send", command=self.write)
-        self._send_button.pack()
-
-        self._gui_done = True
-
-        self.window.protocol("WM_DELETE_WINDOW", self.stop)
 
     def stop(self):
         self._running = False
