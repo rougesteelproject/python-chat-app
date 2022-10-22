@@ -6,8 +6,6 @@ import tkinter as tk
 from tkinter import simpledialog
 import traceback
 
-from server import FORMAT
-
 #Creadit to "Simple GUI Chat in Python" by NeuralNine on youtube
 
 class Client():
