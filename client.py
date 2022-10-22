@@ -90,7 +90,7 @@ class Client():
 
     def write(self):
 
-        message = self._input_area.get('1.0', 'end')
+        message = self._input_area.get('1.0', 'end') + "\n"
         self.sock.send(message.encode(self.FORMAT))
         self._input_area.delete("1.0", "end")
 
