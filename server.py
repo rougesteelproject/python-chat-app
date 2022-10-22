@@ -88,7 +88,7 @@ def recieve_client():
             thread.start()
             print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
         except:
-            traceback.print_exception()
+            traceback.print_exc()
 
 def start():
     #Listens for new connections
