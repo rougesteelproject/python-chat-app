@@ -2,7 +2,7 @@ import socket
 import threading
 
 import tkinter
-from tkinter import simpledialog
+from tkinter import simpledialog, scrolledtext
 import traceback
 
 #Creadit to "Simple GUI Chat in Python" by NeuralNine on youtube
@@ -31,7 +31,7 @@ class Client():
         gui_thread = threading.Thread(target=self.gui_loop)
         recieve_thread = threading.Thread(target=self.recieve)
 
-        gui_thread.start
+        gui_thread.start()
         recieve_thread.start()
 
     def gui_loop(self):
@@ -41,9 +41,9 @@ class Client():
         self._chat_label = tkinter.Label(self.window, text="Chat", bg="lightgray")
         self._chat_label.pack()
 
-        self._text_area = tkinter.scrolledtext.ScrolledText(self.window)
+        self._text_area = scrolledtext.ScrolledText(self.window)
         self._text_area.pack()
-        self._text_area.confing(state='disabled')
+        self._text_area.config(state='disabled')
         #Need to set the state to 'default' when making changes.
 
         self._message_label = tkinter.Label(self.window, text="Message:", bg="lightgray")
@@ -90,7 +90,7 @@ class Client():
 
     def write(self):
 
-        message = self._input_area.get()
+        message = self._input_area.get('1.0', 'end')
         self.sock.send(message.encode(self.FORMAT))
         self._input_area.delete("1.0", "end")
 

@@ -54,9 +54,6 @@ def handle_client(client):
                 disconnect_client(client)
                 break
 
-            if message == SET_NICKNAME_MESSAGE:
-                client.send(SET_NICKNAME_MESSAGE)
-
             broadcast(new_message)
         except:
             disconnect_client(client)
@@ -80,9 +77,9 @@ def recieve_client():
             print(f"[CONNECTION] nickname of client is {nickname}")
             #TODO debug string
 
-            broadcast(f"{nickname} has joined the chat.".encode(FORMAT))
+            broadcast(f"{nickname} has joined the chat.\n".encode(FORMAT))
 
-            client.send("Connected to the server.".encode(FORMAT))
+            client.send("Connected to the server.\n".encode(FORMAT))
 
             thread = threading.Thread(target=handle_client, args=(client,))
             thread.start()
