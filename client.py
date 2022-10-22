@@ -3,7 +3,10 @@ import socket
 import threading
 
 import tkinter as tk
+from tkinter import simpledialog
 import traceback
+
+from server import FORMAT
 
 #Creadit to "Simple GUI Chat in Python" by NeuralNine on youtube
 
@@ -20,8 +23,13 @@ class Client():
         #SOCK_STREAM is TCP
         self.sock.connect((server, port))
 
+        msg = tk.Tk()
+        msg.withdraw()
+
+        self.nickname = simpledialog.askstring("Nickname", "Please choose a nickname", parent=msg)
+
         self._gui_done = False
-        self._running - True
+        self._running = True
 
         gui_thread = threading.Thread(target=self.gui_loop)
         gui_thread.start
@@ -30,17 +38,19 @@ class Client():
         recieve_thread.start()
 
     def recieve(self):
-        while True:
+        while self._running:
             try:
                 message = self.sock.recv(1024).decode(self.FORMAT)
                 print(message)
                 #TODO a debug thing
 
+                
                 if message == self.SET_NICKNAME_MESSAGE:
                     #GET AND SEND NICKNAME
-                    self._text_area.insert('end', "Choose a nickname:")
+                    self.sock.send(self.nickname.encode(self.FORMAT))
+                elif self._gui_done:
 
-                if self._gui_done:
+
                     self._text_area.config(state='normal')
                     #Allow changing the text
                     self._text_area.insert('end', message)
@@ -52,7 +62,7 @@ class Client():
             except ConnectionAbortedError:
                 break
             except:
-                traceback.print_exception()
+                traceback.print_exc()
                 self.sock.close()
                 break
 

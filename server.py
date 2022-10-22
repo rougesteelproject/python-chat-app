@@ -78,6 +78,7 @@ def recieve_client():
             clients.append(client)
 
             print(f"[CONNECTION] nickname of client is {nickname}")
+            #TODO debug string
 
             broadcast(f"{nickname} has joined the chat.".encode(FORMAT))
 
