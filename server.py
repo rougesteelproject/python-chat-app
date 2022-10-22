@@ -30,7 +30,7 @@ def disconnect_client(client):
     clients.remove(client)
     client.close()
     nickname = nicknames[index]
-    client_disconnected_message = f'[DISCONNECT] {nickname} has left the chat'
+    client_disconnected_message = f'[DISCONNECT] {nickname} has left the chat\n'
     print(client_disconnected_message)
     broadcast(client_disconnected_message.encode(FORMAT))
     nicknames.remove(nickname)
@@ -53,9 +53,6 @@ def handle_client(client):
             if message == DISCONNECT_MESSAGE:
                 disconnect_client(client)
                 break
-
-            if message == SET_NICKNAME_MESSAGE:
-                client.send(SET_NICKNAME_MESSAGE)
 
             broadcast(new_message)
         except:
