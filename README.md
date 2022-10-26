@@ -26,9 +26,9 @@ This program was developed using VSCode, written in python. It uses the built-in
 
 Note that Tech with Tim's tutorial has some errors, including an unnessecary 'header' system, which itself expects a wastefully large number of bytes.
 
-* ["Simple GUI Chat in Python" by NeuralNine on youtube](http://url.link.goes.here)
-* ["Python Socket Programming Tutorial" by 'Tech With Tim' on Youtube](http://url.link.goes.here)
-* ["Simple TCP Chat Room in Python" by 'NeuralNine' on Youtube]()
+* ["Simple GUI Chat in Python" by 'NeuralNine' on youtube](https://www.youtube.com/watch?v=sopNW98CRag)
+* ["Python Socket Programming Tutorial" by 'Tech With Tim' on Youtube](https://www.youtube.com/watch?v=3QiPPX-KeSc)
+* ["Simple TCP Chat Room in Python" by 'NeuralNine' on Youtube](https://www.youtube.com/watch?v=3UOyky9sEQY)
 
 # Future Work
 
