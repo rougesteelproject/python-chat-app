@@ -13,6 +13,8 @@ DISCONNECT_MESSAGE = "!disconnect"
 #If users do not propperly disconnect by sending this message, the server may keep their connection ope, then they can't reconnect
 SET_NICKNAME_MESSAGE = "!nick"
 
+#TODO extra newlines are being added somewhere.
+
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 5050
 
