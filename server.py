@@ -25,6 +25,8 @@ nicknames = []
 
 #TODO store a list of new messages, send to clients
 
+#TODO make into a class?
+
 def disconnect_client(client):
     index=clients.index(client)
     clients.remove(client)
@@ -86,6 +88,14 @@ def recieve_client():
             print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
         except:
             traceback.print_exc()
+
+#TODO dm function
+def direct_message(client, message):
+    try:
+        client.send(message.encode(FORMAT))
+    except:
+            traceback.print_exc()
+
 
 def start():
     #Listens for new connections

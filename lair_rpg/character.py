@@ -6,6 +6,8 @@ class Character():
 
         self.base_health = base_health
         self.base_attack = base_attack
+        self.current_health = base_health
+        self.current_attack = base_attack
 
         self.current_health = self.base_health
 
@@ -19,6 +21,10 @@ class Character():
             'feet': None,
             'weapon': None            
         }
+
+        self.set_initial_equipment()
+
+        self.get_equiped_stats()
 
     def take_damage(self, damage):
         self.current_health -= damage
@@ -46,3 +52,10 @@ class Character():
             self.equipment['feet'] = Equipment('feet')
         if randint(1,100) > 50:
             self.equipment['weapon'] = Equipment('weapon')
+
+    def get_equiped_stats(self):
+        self.current_attack = self.base_attack + sum([item.damage_boost for item in self.equipment.values()])
+        self.current_health = self.base_health + sum([item.health_boost for item in self.equipment.values()])
+
+    def get_equipment_sum(self):
+        return sum([item.value for item in self.equipment.values()])

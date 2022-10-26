@@ -14,5 +14,7 @@ class Monster(Character):
         self.hoard.append(self.equipment[slot])
         self.equipment[slot] = self.hoard.pop(equipment_item)
 
+        self.get_equiped_stats()
+
     def get_hoard_value(self):
         return sum([item.value for item in self.hoard])

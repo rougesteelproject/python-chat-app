@@ -1,21 +1,126 @@
-#Make a monster
-#Let user add health and damage up to the total of the max health + max damage an adventurer could have, minus 2
+from random import randint
+from client import Client
+from lair_rpg.adventurer import Adventurer
+from lair_rpg.monster import Monster
 
-#make an adventurer with at least one health and one damage, but up to a random amount for each
+class LairRpg(Client):
+    def __init__(self, server, port) -> None:
+        super().__init__(server, port)
+        self.player_client = None #TODO
+        self.monster = None
+        self.adventurers = []
+        self.unit_list = []
+        self.round_count = 0
 
-#Loop:
-#Add adventurers to list until the sum of the values of their equipment is more than the monster's sum
-#Remove last adventurer
+    def get_input(self, prompt):
+        return self.server.get_input(self.client, prompt)
 
-#Add monster to unit list, randomize the order of the list.
+    def send_message(self, message):
+        self.server.direct_message(self.client, message)
 
-#On unit turn, send attack to server (as thread)
-#On monster (player) turn, ask who to attack
+    def run_game(self):
+        while self.quit == False:
+            self.make_monster()
 
-#Loop player turn until attack is declared, allowing equiping within the loop
+            self.run_wave()
+        self.stop()
 
-#When an adventurer is dead, add their loot to the hoard, sending the names one-by-one to the player
+    def make_monster(self):
+        self.monster = Monster(5, 5)
+        self.unit_list.append(self.monster)
 
-#When all adventurers dead, narrate a new day
+    def make_adventurers(self):
+        #Add adventurers to list until the sum of the values of their equipment is more than the monster's sum
+        combat_level = self.monster.get_equipment_sum()
+        while sum([adventurer.get_equipment_sum() for adventurer in self.adventurers]) < combat_level:
+            base_health = randint(1, 9)
+            min_attack = 10 - base_health
+            self.adventurers.append(Adventurer(base_health, min_attack))
 
-#If monster dies, end game
+        #Remove last adventurer
+        if len(self.adventurers) > 1:
+            list.pop(-1)
+
+    def player_attack(self):
+        #On monster (player) turn, ask who to attack
+        attack_prompt = f'Choose a pesky invader to attack:\n'
+        for index, unit in enumerate(self.unit_list):
+            if unit != self.monster and unit.get_is_dead == False:
+                attack_prompt += f'{index}: {unit.name} \n'
+
+        target_index = self.get_input(attack_prompt)
+
+        unit = self.unit_list[target_index]
+
+        if unit.get_is_dead():
+            self.send_message(f'You attack the {unit.name}, who was already dead!')
+        else:
+            self.send_message(f'You attack the {unit.name}')
+            self.unit.take_damage(self.monster.current_attack)
+            #When an adventurer is dead, add their loot to the hoard, sending the names one-by-one to the player
+            if unit.get_is_dead():
+                self.monster.hoard.extend([item for item in unit.equipment.values()])
+
+
+    def run_round(self):
+        for unit in self.unit_list:
+            if unit.get_is_dead() == False:
+                if unit == self.monster:
+                    #On monster (player) turn, ask who to attack
+                    self.player_attack()
+                    
+                else:
+                    self.send_message(f'{unit.name} attacks you for {unit.current_attack}!')
+                    self.monster.take_damage(unit.current_attack)
+                    self.send_message(f'Your health is now {self.monster.current_health}!')
+                    if self.monster.get_is_dead():
+                        self.send_message('You are dead!')
+                        break
+
+        self.round_count += 1
+
+        self.unit_list = [unit for unit in self.unit_list if unit.get_is_dead() == False]
+
+    def player_death(self):
+        self.send_message(f'You have died. You survived for {self.round_count} rounds. You amassed a trasure hoard worth {self.monster.get_hoard_value()}.')
+        player_input = self.get_input("Do you wish to play again? Press y to play, or any key to quit. \n")
+
+        if player_input == 'y':
+            self.run_game()
+        else:
+            self.quit == True
+
+    #TODO make game loop an instance of client
+    #While a "client", the game runs itself/ is a thread of the server
+    #TODO lair_rpg's nickname is lair_rpg
+    #TODO get just the client nickname at the start
+    #TODO a DM system, "!DM [nickname]", then clinet appends "!DM [nickname]" to the message until "!DM [nickname] !EndDM
+    #TODO use dms to run the game
+    #TODO game_loop overwrite the client listener to handle responses "!TAG {response}" to different prompts
+    #The client responds to "!PROMPT !TAG {propmpt}" with "!TAG {response}"
+    #TODO change player_input to a class property
+
+    def player_equipment_round(self):
+        player_input = 'y'
+        while player_input == 'y':
+
+            self.send_message("You have the following items in your hoard:\n")
+            for index, item in enumerate(self.monster.hoard):
+                self.send_message(f'{index}: {item.name}\n')
+
+            player_input = self.get_input('Do you want to equip any more items?\n')
+
+        
+
+    def run_wave(self):
+        self.make_adventurers()
+
+        #TODO randomize self.unit_list
+
+        while len(self.unit_list) > 1:
+            self.run_round()
+
+        if self.monster.get_is_dead():
+            self.player_death()
+        else:
+            self.player_equipment_round()
