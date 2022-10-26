@@ -1,29 +1,53 @@
+import socket
+import threading
+
 from random import randint
 from client import Client
 from lair_rpg.adventurer import Adventurer
 from lair_rpg.monster import Monster
 
 class LairRpg(Client):
-    def __init__(self, server, port) -> None:
-        super().__init__(server, port)
-        self.player_client = None #TODO
+    def __init__(self, server, port, player_client) -> None:
+        
+        self.FORMAT = 'utf-8'
+
+        self.DISCONNECT_MESSAGE = "!disconnect"
+        #If users do not propperly disconnect by sending this message, the server may keep their connection ope, then they can't reconnect
+        self.SET_NICKNAME_MESSAGE = "!nick"
+
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #SOCK_STREAM is TCP
+        self.sock.connect((server, port))
+
+        self.nickname = 'lair_rpg'
+
+        self.gui_done = False
+        self._running = True
+
+        gui_thread = threading.Thread(target=self.gui_loop)
+        recieve_thread = threading.Thread(target=self.recieve)
+
+        gui_thread.start()
+        recieve_thread.start()
+
+        self.player_client = player_client
         self.monster = None
         self.adventurers = []
         self.unit_list = []
         self.round_count = 0
 
     def get_input(self, prompt):
-        return self.server.get_input(self.client, prompt)
+        #TODO return self.server.get_input(self.client, prompt)
 
     def send_message(self, message):
-        self.server.direct_message(self.client, message)
+        #TODO direct_message(self.client, message)
 
     def run_game(self):
-        while self.quit == False:
-            self.make_monster()
 
-            self.run_wave()
-        self.stop()
+        self.make_monster()
+
+        self.run_wave()
+
 
     def make_monster(self):
         self.monster = Monster(5, 5)
@@ -88,17 +112,16 @@ class LairRpg(Client):
         if player_input == 'y':
             self.run_game()
         else:
-            self.quit == True
+            self.stop()
 
-    #TODO make game loop an instance of client
     #While a "client", the game runs itself/ is a thread of the server
-    #TODO lair_rpg's nickname is lair_rpg
-    #TODO get just the client nickname at the start
+
     #TODO a DM system, "!DM [nickname]", then clinet appends "!DM [nickname]" to the message until "!DM [nickname] !EndDM
     #TODO use dms to run the game
     #TODO game_loop overwrite the client listener to handle responses "!TAG {response}" to different prompts
     #The client responds to "!PROMPT !TAG {propmpt}" with "!TAG {response}"
     #TODO change player_input to a class property
+    #TODO when a player responds with "!TAG {response}, run the corresponding 'loop' just once"
 
     def player_equipment_round(self):
         player_input = 'y'
